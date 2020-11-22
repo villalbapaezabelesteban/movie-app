@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
+import { getMovieRequest } from './api/APIMovie';
+
 import MovieList from './components/MovieList';
 import MovieListHeading from './components/MovieListHeading';
 import SearchBox from './components/SearchBox';
@@ -14,37 +16,26 @@ const App = () => {
   const [searchValue, setSearchValue] = useState('');
   const [favourites, setFavourites] = useState([]);
 
-  const getMovieRequest = async (searchValue) => {
-    const url = `http://www.omdbapi.com/?s=${searchValue}&apikey=5aa91a63`;
-
-    const response = await fetch(url);
-    const responseJson = await response.json();
-
-    if (responseJson.Search) {
-      setMovies(responseJson.Search);
-    }
-  };
-
-  window.addEventListener("storage",(e) => {
+  window.addEventListener("storage", (e) => {
     console.log('Ingreso al localStorage');
- });
+  });
 
   useEffect(() => {
-    getMovieRequest(searchValue);
+    getMovieRequest(searchValue, setMovies);
   }, [searchValue]);
 
   useEffect(() => {
-		const movieFavourites = JSON.parse(
-			localStorage.getItem('movie-app-favourites')
-		) || [];
+    const movieFavourites = JSON.parse(
+      localStorage.getItem('movie-app-favourites')
+    ) || [];
 
-		setFavourites(movieFavourites);
-	}, []);
+    setFavourites(movieFavourites);
+  }, []);
 
-	const saveToLocalStorage = (items) => {
-		localStorage.setItem('movie-app-favourites', JSON.stringify(items));
+  const saveToLocalStorage = (items) => {
+    localStorage.setItem('movie-app-favourites', JSON.stringify(items));
   };
-  
+
   const addFavouriteMovie = (movie) => {
     let favouriteList = favourites.filter(
       (favourite) => favourite.imdbID !== movie.imdbID
@@ -63,7 +54,7 @@ const App = () => {
     setFavourites(newFavouriteList);
     saveToLocalStorage(newFavouriteList);
   };
-  
+
   return (
     <div className='container-fluid movie-app'>
       <div className='row d-flex align-items-center mt-4 mb-4'>
@@ -80,7 +71,7 @@ const App = () => {
       </div>
       <div className='row'>
         <MovieList movies={favourites}
-          favouriteComponent={RemoveFavourites} 
+          favouriteComponent={RemoveFavourites}
           handleFavouritesClick={removeFavouriteMovie} />
       </div>
     </div>
